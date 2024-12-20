@@ -1,8 +1,10 @@
 ---
 title: "SPEAR + Lasso: all tasks"
-author: "Jeremy Gygi (Steven Kleinstein Lab + Leying Guan Lab)"
+author: "Burhan Sabuwala (Steven Kleinstein Lab + Leying Guan Lab)"
 output: html_notebook
 ---
+
+Inspired from Jeremy Gygi's code.
 
 Packages
 
@@ -100,40 +102,6 @@ gex.te <- gex$test_data
 
 Preprocessing: Check distributions
 
-ab_titers:
-
-```{r eval=FALSE, include=FALSE}
-# Ab Titers:
-ab_titers_preprocessed.tr <- apply(ab_titers.tr, 2, log2)
-ab_titers_preprocessed_sc.tr <- scale(ab_titers_preprocessed.tr)
-ab_titers_preprocessed.te <- apply(ab_titers.te, 2, log2)
-ab_titers_preprocessed_sc.te <- scale(ab_titers_preprocessed.te)
-
-# OLINK:
-## NOTE: Removing IL4 (less than 0...)
-#olink_preprocessed.tr <- olink[,colnames(olink.tr)!="P05112"]
-olink_preprocessed.tr <- apply(olink.tr, 2, log2)
-olink_preprocessed_sc.tr <- scale(olink_preprocessed.tr)
-## NOTE: Removing IL4 (less than 0...)
-#olink_preprocessed.te <- olink.te[,colnames(olink.te)!="P05112"]
-olink_preprocessed.te <- apply(olink.te, 2, log2)
-olink_preprocessed_sc.te <- scale(olink_preprocessed.te)
-
-# CyTOF:
-cytof_preprocessed.tr <- apply(cytof.tr, 2, sqrt)
-cytof_preprocessed_sc.tr <- scale(cytof_preprocessed.tr)
-cytof_preprocessed.te <- apply(cytof.te, 2, sqrt)
-cytof_preprocessed_sc.te <- scale(cytof_preprocessed.te)
-
-# Gene Expression:
-half.min.tr = min(gex.tr[gex.tr != 0])/2
-gex_preprocessed.tr <- apply(gex.tr + half.min.tr, 2, log2)
-gex_preprocessed_sc.tr <- scale(gex_preprocessed.tr)
-half.min.te = min(gex.te[gex.te != 0])/2
-gex_preprocessed.te <- apply(gex.te + half.min.te, 2, log2)
-gex_preprocessed_sc.te <- scale(gex_preprocessed.te)
-```
-
 Check dimensions and number of samples:
 
 ```{r}
@@ -167,20 +135,6 @@ te.analytes <- colnames(gex.te)
 which(!tr.analytes %in% te.analytes)
 ```
 
-Note that CyTOF from test data has two extra features:
-
-```{r eval=FALSE, include=FALSE}
-# Confirm overlap:
-tr.analytes <- colnames(cytof_preprocessed_sc)
-te.analytes <- colnames(cytof_preprocessed_sc.te)
-colnames(cytof_preprocessed_sc.te)[which(!te.analytes %in% tr.analytes)]
-# Remove them from test:
-cytof_preprocessed_sc.te <- cytof_preprocessed_sc.te[,-c(which(!te.analytes %in% tr.analytes))]
-# Check again:
-tr.analytes <- colnames(cytof_preprocessed_sc)
-te.analytes <- colnames(cytof_preprocessed_sc.te)
-which(!te.analytes %in% tr.analytes)
-```
 
 specimen_id overlap:
 
@@ -263,7 +217,7 @@ dplyr::filter(whole.data$subject_specimen, subject_id %in% missing.te)
 
 # Quick MOFA imputation:
 
-```{r eval=FALSE, include=FALSE}
+```{r}
 datasets_combined = list(
   ab_titers = ab_titers.tr,
   olink = olink.tr,
@@ -331,7 +285,7 @@ lapply(datasets_full_combined.tr, dim)
 ```
 
 ```{r}
-#saveRDS(datasets_full_combined.tr, file.path("~", "Research",  "CMI-PB", "MOFA__train_prediction_imputed_data.rds"))
+saveRDS(datasets_full_combined.tr, file.path("~", "Research",  "CMI-PB", "MOFA__train_prediction_imputed_data.rds"))
 datasets_full_combined.tr <- readRDS(file.path("~", "Research",  "CMI-PB", "MOFA__train_prediction_imputed_data.rds"))
 ```
 
@@ -406,7 +360,7 @@ lapply(datasets_full_combined.te, dim)
 Save/Load Imputed Data
 
 ```{r}
-#saveRDS(datasets_full_combined.te, file.path("~", "Research",  "CMI-PB", "MOFA_prediction_imputed_data.rds"))
+saveRDS(datasets_full_combined.te, file.path("~", "Research",  "CMI-PB", "MOFA_prediction_imputed_data.rds"))
 datasets_full_combined <- readRDS(file.path("~", "Research",  "CMI-PB", "MOFA_prediction_imputed_data.rds"))
 ```
 
@@ -638,9 +592,9 @@ modelnames <- c(paste0("spear_task_1_1_k", k, ".rds"),
 
 # Run SPEAR and Ensemble?
 do.spear <- TRUE
-do.ensemble <- FALSE
+do.ensemble <- TRUE
 
-for(i in 4:6){
+for(i in 1:6){
   # list of assays (rows = analytes, cols = samples!)
   assays.tr <- list(olink = t(assay_olink),
                  cytof = t(assay_cytof),
