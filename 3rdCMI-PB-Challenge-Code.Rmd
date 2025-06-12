@@ -1,6 +1,6 @@
 ---
 title: "SPEAR + Lasso: all tasks"
-author: "Burhan Sabuwala (Steven Kleinstein Lab + Leying Guan Lab)"
+author: "Burhan Sabuwala (Steven Kleinstein Lab & Leying Guan Lab)"
 output: html_notebook
 ---
 
